@@ -53,3 +53,8 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# Custom files
+koding_standard.txt
+logika.txt
+.vscode

@@ -25,7 +25,7 @@ int main()
 
     int min = *(int*)get_min(&heap);
     pop_min(&heap);
-    printf("MINIMALNA KURCINA: %d\n", min);
+    printf("MINIMALNI: %d\n", min);
     heap_dump(&heap);
     destroy_heap(&heap);
     return 0;

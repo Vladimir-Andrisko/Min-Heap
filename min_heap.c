@@ -4,7 +4,7 @@
 
 static inline size_t get_parent(size_t index)
 {
-    return (size_t)((index-1)/2.0);
+    return (--index)/2;
 }
 
 static inline size_t get_left(size_t index)
@@ -22,10 +22,10 @@ static inline void* get_element(min_heap_t* heap, size_t index)
     return (unsigned char*)(heap->data + index * heap->element_size);
 }
 
-static void swap_elements(void *a, void *b, size_t element_size)
+static inline void swap_elements(void *a, void *b, size_t element_size)
 {
     unsigned char temp[element_size];
-
+    
     memcpy(temp, a, element_size);
     memcpy(a, b, element_size);
     memcpy(b, temp, element_size);
@@ -49,29 +49,35 @@ void heapify(min_heap_t* heap, size_t index)
     size_t right = get_right(index);
     size_t smallest;
 
-    if (left < heap->size && heap->compare_cb(get_element(heap, left), get_element(heap, index)))
+    do
     {
-        smallest = left;
-    }else
-    {
-        smallest = index;
-    }
+        if (left < heap->size && heap->compare_cb(get_element(heap, left), get_element(heap, index)))
+        {
+            smallest = left;
+        }else
+        {
+            smallest = index;
+        }
 
-    if (right < heap->size && heap->compare_cb(get_element(heap, right), get_element(heap, smallest)))
-    {
-        smallest = right;
-    }
+        if (right < heap->size && heap->compare_cb(get_element(heap, right), get_element(heap, smallest)))
+        {
+            smallest = right;
+        }
 
-    if (smallest != index)
-    {
-        swap_elements(get_element(heap, index), get_element(heap, smallest), heap->element_size);
-        heapify(heap, smallest);
-    }
-
+        if (smallest != index)
+        {
+            swap_elements(get_element(heap, index), get_element(heap, smallest), heap->element_size);
+            
+            index = smallest;
+            left = get_left(index);
+            right = get_right(index);
+        }
+    }while(smallest != index);
 }
 
 void build_heap(min_heap_t* array, size_t size){
-    for (int i = size/2; i > 0; i--){
+    for (size_t i = size/2; i > 0; i--)
+    {
         heapify(array, i);
     }
 }
@@ -103,8 +109,7 @@ void heap_insert(min_heap_t* heap, void* elem){
         return;
     }
 
-    size_t i = heap->size;
-    heap->size++;
+    size_t i = heap->size++;
     memcpy(get_element(heap, i), elem, heap->element_size);
 
     size_t parent = get_parent(i);
@@ -121,8 +126,7 @@ void heap_dump(min_heap_t* heap){
     size_t index = 0;
     while (index < heap->size)
     {
-        printf("%d, ", *(int*)get_element(heap, index));
-        index++;
+        printf("%d, ", *(int*)get_element(heap, index++));
     }
     printf("\n");
 }

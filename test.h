@@ -4,6 +4,7 @@
 #include "min_heap.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 void test_1();
 void test_2();

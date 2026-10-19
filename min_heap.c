@@ -4,37 +4,42 @@ static inline size_t get_parent(size_t index);
 static inline size_t get_left(size_t index);
 static inline size_t get_right(size_t index);
 static inline void* get_element(const min_heap_t* heap, const size_t index);
-static inline void swap_elements(void *a, void *b, size_t element_size);
+static inline void swap(void *a, void *b, size_t element_size);
 static void heapify_down(const min_heap_t* heap, size_t index);
 static void heapify_up(const min_heap_t* heap, size_t index);
 
 static inline size_t get_parent(size_t index)
 {
-    return (size_t)(--index)/2U;
+    return (index - 1U)/2U;
 }
 
 static inline size_t get_left(size_t index)
 {
-    return (2U*index) + 1U;
+    return (2U * index) + 1U;
 }
 
 static inline size_t get_right(size_t index)
 {
-    return (2U*index) + 2U;
+    return (2U * index) + 2U;
 }
 
 static inline void* get_element(const min_heap_t* heap, const size_t index)
 {
-    return (unsigned char*)heap->data + index * heap->element_size;
+    return (unsigned char*)heap->data + (index * heap->element_size);
 }
 
-static inline void swap_elements(void *a, void *b, size_t element_size)
+static inline void swap(void *a, void *b, const size_t element_size)
 {
-    unsigned char temp[element_size];
-    
-    memcpy(temp, a, element_size);
-    memcpy(a, b, element_size);
-    memcpy(b, temp, element_size);
+    unsigned char* x = (unsigned char*)a;
+    unsigned char* y = (unsigned char*)b;
+    unsigned char temp;
+
+    for (size_t i = 0; i < element_size; i++)
+    {
+        temp = x[i];
+        x[i] = y[i];
+        y[i] = temp;
+    }
 }
 
 size_t init_min_heap(min_heap_t* heap_structure, size_t size, size_t element_size, bool (*compare)(void* elem1, void* elem2))
@@ -49,22 +54,35 @@ size_t init_min_heap(min_heap_t* heap_structure, size_t size, size_t element_siz
     return (heap_structure->data != nullptr);
 }
 
-void heapify_down(const min_heap_t* heap, size_t index)
+static void heapify_down(const min_heap_t* heap, size_t index)
 {
-    while (index < heap->size)
+    size_t size = heap->size;
+
+    while (index < (size / 2u))
     {
         size_t left = get_left(index);
         size_t right = get_right(index);
         size_t smallest = index;
 
-        if ((left < heap->size) && (heap->compare_cb(get_element(heap, left), get_element(heap, smallest))))
+
+        void* left_elem = get_element(heap, left);
+        void* smallest_elem = get_element(heap, smallest);
+
+        if (heap->compare_cb(left_elem, smallest_elem))
         {
             smallest = left;
+            smallest_elem = left_elem;
         }
 
-        if ((right < heap->size) && (heap->compare_cb(get_element(heap, right), get_element(heap, smallest))))
+        if (right < size)
         {
-            smallest = right;
+            void* right_elem = get_element(heap, right);
+
+            if (heap->compare_cb(right_elem, smallest_elem))
+            {
+                smallest = right;
+                smallest_elem = right_elem;
+            }
         }
 
         if (smallest == index)
@@ -72,38 +90,44 @@ void heapify_down(const min_heap_t* heap, size_t index)
             break;
         }
 
-        swap_elements(get_element(heap, index), get_element(heap, smallest), heap->element_size);
+        void* index_elem = get_element(heap, index);
+        swap(index_elem, smallest_elem, heap->element_size);
         index = smallest;
     }
 }
 
-void heapify_up(const min_heap_t* heap, size_t index)
+static void heapify_up(const min_heap_t* heap, size_t index)
 {
 
     while (index > 0u)
     {
         size_t parent = get_parent(index);
+        void* parent_elem = get_element(heap, parent);
+        void* index_elem = get_element(heap, index);
 
-        if (heap->compare_cb(get_element(heap, parent), get_element(heap, index)))
+        if (heap->compare_cb(parent_elem, index_elem))
         {
             break;
         }
 
-        swap_elements(get_element(heap, parent), get_element(heap, index), heap->element_size);
+        swap(parent_elem, index_elem, heap->element_size);
         index = parent;
     }
 }
 
-void build_heap(min_heap_t* heap, const void* arr, size_t arr_size)
+void build_heap(min_heap_t* heap, const void* arr, const size_t arr_size)
 {
+    assert(arr_size > 0u);
+    assert(heap->capacity >= arr_size);
+
     heap->size = arr_size;
     memcpy(heap->data, arr, arr_size * heap->element_size);
 
-    for (size_t i = (arr_size/2u) - 1u; i > 0u; i--)
+    for (size_t i = arr_size/2u; i > 0u; i--)
     {   
-        heapify_down(heap, i);
+        size_t index = i - 1u;
+        heapify_down(heap, index);
     }
-    heapify_down(heap, 0u);
 }
 
 void destroy_heap(const min_heap_t* heap){
@@ -111,65 +135,78 @@ void destroy_heap(const min_heap_t* heap){
 }
 
 void* get_min(const min_heap_t* heap){
+    void* ret_value;
     if(heap->size > 0u){
-        return heap->data;
+        ret_value = heap->data;
     }
-    return nullptr;
+    else
+    {
+        ret_value = nullptr;
+    }
+
+    return ret_value;
 }
 
 void pop_min(min_heap_t* heap){
-    assert(heap->size > 0);
-
-    if (heap->size == 1)
-    {
-        heap->size--;
-        return;
-    }
+    assert(heap->size > 0u);
 
     heap->size--;
-    void* last_el = get_element(heap, heap->size);
+    if (heap->size > 0u)
+    {   
+        void* last_el = get_element(heap, heap->size);
 
-    memcpy(get_element(heap, 0u), last_el, heap->element_size);
-    heapify_down(heap, 0u);
+        memcpy(get_element(heap, 0u), last_el, heap->element_size);
+        heapify_down(heap, 0u);
+    } 
 }
 
-void heap_insert(min_heap_t* heap, void* elem){
-    if (heap->size >= heap->capacity)
-    {
-        return;
-    }
+void heap_insert(min_heap_t* heap, const void* elem){
+    assert(heap->size < heap->capacity);
 
     if (heap->size == 0u)
     {
         memcpy(get_element(heap, 0u), elem, heap->element_size);    
         heap->size++;
-        return;
     }
-
-    size_t i = heap->size++;
-    memcpy(get_element(heap, i), elem, heap->element_size);
-    heapify_up(heap, i);
+    else
+    {
+        size_t i = heap->size;
+        heap->size++;
+        memcpy(get_element(heap, i), elem, heap->element_size);
+        heapify_up(heap, i);
+    }
 }
 
 void heap_delete(min_heap_t* heap, size_t index)
 {  
-    assert(index <= heap->size);
-    if (heap->size == 1)
-    {
-        heap->size = 0;
-        return;
-    }
+    assert(index < heap->size);
 
     heap->size--;
-    memcpy(get_element(heap, index), get_element(heap, heap->size), heap->element_size);
+    if (index < heap->size)
+    {
+        void* index_element = get_element(heap, index);
+        void* last_element = get_element(heap, heap->size);
 
-    if ((index > 0u) && (heap->compare_cb(get_element(heap, index), get_element(heap, get_parent(index)))))
-    {
-        heapify_up(heap, index);
-    }
-    else
-    {
-        heapify_down(heap, index);
+        memmove(index_element, last_element, heap->element_size);
+
+        if (index == 0u)
+        {
+            heapify_down(heap, index);
+        }
+        else
+        {
+            size_t parent = get_parent(index);
+            void* parent_element = get_element(heap, parent);
+
+            if (heap->compare_cb(index_element, parent_element))
+            {
+                heapify_up(heap, index);
+            }
+            else
+            {
+                heapify_down(heap, index);
+            }
+        }
     }
 }
 
@@ -183,29 +220,41 @@ void heap_dump(const min_heap_t* heap, void (*print_cb)(void* elem))
     }
 }
 
-void heap_sort(min_heap_t* heap)
+void heap_sort(const min_heap_t* heap, void* arr)
 {
-    size_t temp = heap->size;
-    for (int i = heap->size-1; i >= 1; i--)
+    min_heap_t temp_heap = *heap;
+    temp_heap.data = arr;
+
+    if (temp_heap.size > 0u)
     {
-        swap_elements(get_element(heap, 0u), get_element(heap, i), heap->element_size);
-        heap->size--;
-        heapify_down(heap, 0u);
+        memcpy(temp_heap.data, heap->data, temp_heap.size * temp_heap.element_size);
     }
-    heap->size = temp;
+
+    while (temp_heap.size > 1u)
+    {
+        size_t last_index = temp_heap.size - 1u;
+
+        void* first_element = temp_heap.data;
+        void* last_element = get_element(&temp_heap, last_index);
+
+        swap(first_element, last_element, temp_heap.element_size);
+
+        temp_heap.size--;
+        heapify_down(&temp_heap, 0u);
+    }
 }
 
-bool heap_empty(min_heap_t* heap)
+bool heap_empty(const min_heap_t* heap)
 {
-    return (heap->size == 0);
+    return (bool)(heap->size == 0u);
 }
 
-bool heap_full(min_heap_t* heap)
+bool heap_full(const min_heap_t* heap)
 {
-    return (heap->size == heap->capacity);
+    return (bool)(heap->size == heap->capacity);
 }
 
 void clear_heap(min_heap_t* heap)
 {
-    heap->size = 0;
+    heap->size = 0u;
 }

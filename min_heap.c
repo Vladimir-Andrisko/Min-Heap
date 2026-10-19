@@ -5,6 +5,8 @@ static inline size_t get_left(size_t index);
 static inline size_t get_right(size_t index);
 static inline void* get_element(const min_heap_t* heap, const size_t index);
 static inline void swap_elements(void *a, void *b, size_t element_size);
+static void heapify_down(const min_heap_t* heap, size_t index);
+static void heapify_up(const min_heap_t* heap, size_t index);
 
 static inline size_t get_parent(size_t index)
 {
@@ -150,7 +152,14 @@ void heap_insert(min_heap_t* heap, void* elem){
 }
 
 void heap_delete(min_heap_t* heap, size_t index)
-{   
+{  
+    assert(index <= heap->size);
+    if (heap->size == 1)
+    {
+        heap->size = 0;
+        return;
+    }
+
     heap->size--;
     memcpy(get_element(heap, index), get_element(heap, heap->size), heap->element_size);
 
@@ -189,4 +198,14 @@ void heap_sort(min_heap_t* heap)
 bool heap_empty(min_heap_t* heap)
 {
     return (heap->size == 0);
+}
+
+bool heap_full(min_heap_t* heap)
+{
+    return (heap->size == heap->capacity);
+}
+
+void clear_heap(min_heap_t* heap)
+{
+    heap->size = 0;
 }

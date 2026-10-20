@@ -188,7 +188,11 @@ Na hosted C23 okruzenjima ceo kod je prenosiv.
 Na freestanding C23 okruzenjima, malloc, free i assert funkcije su
 jedini neprenosivi delovi koda.
 
-Za prevodjenje dovoljno je linkovati module test.c min_heap.c sa main.c
+Prevodjenje:
+
+gcc -std=c2x -c -O3 min_heap.c
+ar -rs libminHeap.a min_heap.o
+gcc test.c main.c --static -std=c2x -L . -l minHeap -o main.out
 
 */
 

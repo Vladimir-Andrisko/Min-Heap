@@ -33,7 +33,7 @@ static inline void swap(void *a, void *b, const size_t element_size)
     unsigned char* x = (unsigned char*)a;
     unsigned char* y = (unsigned char*)b;
     unsigned char temp;
-
+    
     for (size_t i = 0; i < element_size; i++)
     {
         temp = x[i];
@@ -98,7 +98,6 @@ static void heapify_down(const min_heap_t* heap, size_t index)
 
 static void heapify_up(const min_heap_t* heap, size_t index)
 {
-
     while (index > 0u)
     {
         size_t parent = get_parent(index);
@@ -121,11 +120,12 @@ void build_heap(min_heap_t* heap, const void* arr, const size_t arr_size)
     assert(heap->capacity >= arr_size);
 
     heap->size = arr_size;
-    memcpy(heap->data, arr, arr_size * heap->element_size);
+    memmove(heap->data, arr, arr_size * heap->element_size);
 
-    for (size_t i = arr_size/2u; i > 0u; i--)
+    size_t index = arr_size / 2u;
+    while (index > 0u)
     {   
-        size_t index = i - 1u;
+        --index;
         heapify_down(heap, index);
     }
 }
@@ -155,7 +155,7 @@ void pop_min(min_heap_t* heap){
     {   
         void* last_el = get_element(heap, heap->size);
 
-        memcpy(get_element(heap, 0u), last_el, heap->element_size);
+        memmove(get_element(heap, 0u), last_el, heap->element_size);
         heapify_down(heap, 0u);
     } 
 }
@@ -165,14 +165,14 @@ void heap_insert(min_heap_t* heap, const void* elem){
 
     if (heap->size == 0u)
     {
-        memcpy(get_element(heap, 0u), elem, heap->element_size);    
+        memmove(get_element(heap, 0u), elem, heap->element_size);    
         heap->size++;
     }
     else
     {
         size_t i = heap->size;
         heap->size++;
-        memcpy(get_element(heap, i), elem, heap->element_size);
+        memmove(get_element(heap, i), elem, heap->element_size);
         heapify_up(heap, i);
     }
 }
@@ -227,7 +227,7 @@ void heap_sort(const min_heap_t* heap, void* arr)
 
     if (temp_heap.size > 0u)
     {
-        memcpy(temp_heap.data, heap->data, temp_heap.size * temp_heap.element_size);
+        memmove(temp_heap.data, heap->data, temp_heap.size * temp_heap.element_size);
     }
 
     while (temp_heap.size > 1u)

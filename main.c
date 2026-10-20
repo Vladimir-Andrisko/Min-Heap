@@ -25,8 +25,19 @@ element_size - Velicina tipa koji se koristi.
 bool (*compare)(void* elem1, void* elem2) - Pokazivac na funkciju za relaciju poredjenja.
 
 Compare funkcija treba da vrati true ako je prvi element manji od drugog.
-size mora biti veci od nule, a compare pokazivac validan. Za element_size koristiti sizeof().
+Primer:
+
+bool compare_ints(void* elem1, void* elem2)
+{
+    int32_t x = *(int32_t*)elem1;
+    int32_t y = *(int32_t*)elem2;
+
+    return x < y;
+}
+
 Proizvod size i element_size ne sme prekoraciti maksimalnu vrednost tipa size_t.
+Za element_size preporuceno je koristi operator sizeof(), osim ako korisnik zna sta radi.
+Pogresno prosledjena velicina elementa moze da izazove nedefinisano ponasanje.
 
 Funkcija sadrzi malloc() kako bi se alocirala trazena memorija, zbog toga je preporuceno pozvati ovu f-ju u fazi inicijalizacije
 kako bi se izbegla spora alkoacija za potrebu realnog vremena i kako bi se mogle detektovati greske.
@@ -93,8 +104,14 @@ void pop_min(min_heap_t* heap);
 Iterira kroz heap strukturu i koristi prosledjenu funkciju print_cb za ispis strukture.
 print_cb omogucava da funkcija bude nezavisna od platforme, tj. od nacina ispisivanja podataka.
 
-print_cb mora biti validan pokazivac na funkciju.
 Elementi se ispisuju redosledom kojim su smesteni u heap-u.
+
+primer print_cb funkcije:
+void print_a_star(void* elem)
+{
+    a_star_node_t x = *(a_start_node_t*)elem;
+    printf("Node id: %"PRIdLEAST16", f: %.2lf, h: %.2lf | ", x.id, x.f_cost, x.h_cost);
+}
 
 void heap_dump(const min_heap_t* heap, void (*print_cb)(void* elem));
 
@@ -103,8 +120,8 @@ void heap_dump(const min_heap_t* heap, void (*print_cb)(void* elem));
 Sortira podatke iz prosledjene heap strukture u opadajucem redosledu
 i smesta ih u prosledjeni niz arr.
 
-Korisnik vodi racuna da sorted_arr ima dovoljno memorije za sve elemente heap-a.
-sorted_arr ne sme da se preklapa sa memorijom heap-a.
+Korisnik vodi racuna da arr ima dovoljno memorije za sve elemente heap-a.
+arr ne sme da se preklapa sa memorijom heap-a.
 
 Originalna heap struktura ostaje nepromenjena i moze se koristiti nakon sortiranja.
 
@@ -134,8 +151,7 @@ void clear_heap(min_heap_t* heap);
 MISRA - Ignorisana pravila:
 
 5.6 
-Dozvoljeno koriscenje istih naziva identifikatora u razlicitim
-prostorima imena, bez uticaja na funkcionalnost programa.
+Savetno pravilo, nema uticaj na funkcionalnost programa.
 
 5.7
 Dozvoljeno ponovno koriscenje naziva lokalnih promenljivih i
@@ -145,20 +161,32 @@ parametara u razlicitim funkcijama radi jednostavnosti koda.
 Dozvoljena dinamicka alokacija memorije pomocu malloc().
 Alokacija se izvrsava samo prilikom inicijalizacije heap-a,
 kako ne bi uticala na izvrsavanje operacija u realnom vremenu.
-Memorija se oslobadja pomocu destroy_heap().
+
+malloc() se nalazi samo u init_min_heap() funkciji.
 
 17.4
 Dozvoljena pokazivacka aritmetika za pristup elementima
 generickog niza. Koristi se unsigned char* kako bi se
 izracunala adresa elementa na osnovu njegove velicine i indeksa.
 
+Koristi se u swap() i get_element() funkcijama, ali te funkcije
+nisu dostupne u API.
+
 13.5
-Dozvoljeno odstupanje od ogranicenja izraza unutar for petlje.
-Pravilo je ignorisano zbog efikasnosti implementacije.
+Prijavljuje gresku za inicijalizaciju promenljive i u for petlji.
+Dati MISRA koristi ISO/IEC 9899:1990 standard C-a koji nema definisanu
+deklaraciju promenljive unutar for petlje.
 
 10.1
 Ignorisane implicitne konverzije koje analizator pogresno
 prijavljuje prilikom koriscenja assert() makroa.
+
+Prenosivost:
+
+Na hosted C23 okruzenjima ceo kod je prenosiv.
+
+Na freestanding C23 okruzenjima, malloc, free i assert funkcije su
+jedini neprenosivi delovi koda.
 
 */
 
@@ -167,8 +195,8 @@ prijavljuje prilikom koriscenja assert() makroa.
 #include <stdio.h>
 
 int main(void)
-{   
-
+{  
+    
     test_1();
     test_2();
     test_3();
@@ -179,18 +207,6 @@ int main(void)
     test_8();
     test_9();
     test_10();
-    test_11();
-    test_12();
-    test_13();
-    test_14();
-    test_15();
-    // test_16();
-    // test_17();
-    // test_18();
-    // test_19();
-    // test_20();
-    // test_21();
-    // test_22();
 
     return 0;
 }

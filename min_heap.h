@@ -1,15 +1,14 @@
 #ifndef MIN_HEAP_H_
 #define MIN_HEAP_H_
 
+/* Freestanding podrzano */
 #include <stddef.h>
+#include <stdbool.h>
+#include <string.h> /*memcpy*/
+
+/* Nije freestanding podrzano */
 #include <assert.h>
 #include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stddef.h>
-
-#pragma CHECK_MISRA("-13.5")    /*Expressions in for loop should be used only for loop cotrol. Ignored beacuse it is heavy on performance*/
 
 
 typedef struct min_heap{

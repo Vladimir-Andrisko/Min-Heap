@@ -49,6 +49,11 @@ size_t init_min_heap(min_heap_t* heap_structure, size_t size, size_t element_siz
     heap_structure->element_size = element_size;
     heap_structure->compare_cb = compare;
 
+    /* 
+    malloc() nije garantovan u freestanding C23 okruzenjima.
+    Koristi se iskljucivo pri inicijalizaciji heap-a, kako bi se
+    izbegla dinamicka alokacija tokom RT operacija. 
+    */
     heap_structure->data = malloc(size * element_size);
 
     return (heap_structure->data != nullptr);
@@ -116,6 +121,11 @@ static void heapify_up(const min_heap_t* heap, size_t index)
 
 void build_heap(min_heap_t* heap, const void* arr, const size_t arr_size)
 {
+    /* 
+    assert() nije garantovan u freestanding C23 okruzenjima.
+    Koristi se za detekciju neispravnih argumenata i krsenja
+    preduslova funkcije tokom izvrsavanja programa. 
+    */
     assert(arr_size > 0u);
     assert(heap->capacity >= arr_size);
 
@@ -148,6 +158,12 @@ void* get_min(const min_heap_t* heap){
 }
 
 void pop_min(min_heap_t* heap){
+    /* 
+    assert() nije garantovan u freestanding C23 okruzenjima.
+    Koristi se za detekciju neispravnih argumenata i krsenja
+    preduslova funkcije tokom izvrsavanja programa. 
+    */
+
     assert(heap->size > 0u);
 
     heap->size--;
@@ -161,6 +177,11 @@ void pop_min(min_heap_t* heap){
 }
 
 void heap_insert(min_heap_t* heap, const void* elem){
+    /* 
+    assert() nije garantovan u freestanding C23 okruzenjima.
+    Koristi se za detekciju neispravnih argumenata i krsenja
+    preduslova funkcije tokom izvrsavanja programa. 
+    */
     assert(heap->size < heap->capacity);
 
     if (heap->size == 0u)
@@ -179,6 +200,11 @@ void heap_insert(min_heap_t* heap, const void* elem){
 
 void heap_delete(min_heap_t* heap, size_t index)
 {  
+    /* 
+    assert() nije garantovan u freestanding C23 okruzenjima.
+    Koristi se za detekciju neispravnih argumenata i krsenja
+    preduslova funkcije tokom izvrsavanja programa. 
+    */
     assert(index < heap->size);
 
     heap->size--;

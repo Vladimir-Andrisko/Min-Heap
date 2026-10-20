@@ -188,6 +188,8 @@ Na hosted C23 okruzenjima ceo kod je prenosiv.
 Na freestanding C23 okruzenjima, malloc, free i assert funkcije su
 jedini neprenosivi delovi koda.
 
+Za prevodjenje dovoljno je linkovati module test.c min_heap.c sa main.c
+
 */
 
 #include "min_heap.h"
@@ -196,16 +198,59 @@ jedini neprenosivi delovi koda.
 
 int main(void)
 {  
-    
+    /*
+    Ubacivanje int32_t elemenata sa heap_insert, uzimanje najmanjeg i brisanje najmanjeg.
+    */
     test_1();
+
+    /*
+    Testiranje int32_t sa dupliranim elementima.
+    Brisanje poslednjeg elementa i vadjenje svih elemenata po redu.
+    */
     test_2();
+
+    /*
+    Sortiranje int32_t niza sa heap_sort.
+    */
     test_3();
+
+    /*
+    Lose inicijalizovan heap.
+    a_star_node struktura je namerno napisana da izazove poravnanje, a u ovom primeru korisnik pogresno pretpostavi velicinu strukture.
+    */
     test_4();
+
+    /*
+    Ubacivanje int32_t elemenata do maksimuma, i brisanje do minimuma.
+    */
     test_5();
+
+    /*
+    Pogresno prosledjene callback funkcije.
+    */
     test_6();
+
+    /*
+    Testiranje heap strukture sa float tipom.
+    Ubacivanje elemenata, uzimanje minimuma i brisanje elemenata.
+    */
     test_7();
+
+    /*
+    Testiranje heap strukture sa A* cvorovima.
+    Poredjenje po f_cost i h_cost, ubacivanje i brisanje cvorova.
+    */
     test_8();
+
+    /*
+    Sortiranje float niza i niza A* cvorova.
+    Provera da originalna heap struktura ostaje nepromenjena.
+    */
     test_9();
+
+    /*
+    Stress test sa 200 nasumicnih elemenata.
+    */
     test_10();
 
     return 0;

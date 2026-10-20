@@ -291,8 +291,8 @@ void test_6(void)
 }
 
 /*
-    Testiranje heap strukture sa float tipom.
-    Ubacivanje elemenata, uzimanje minimuma i brisanje elemenata.
+Testiranje heap strukture sa float tipom.
+Ubacivanje elemenata, uzimanje minimuma i brisanje elemenata.
 */
 void test_7(void)
 {
@@ -379,8 +379,8 @@ void test_8(void)
 }
 
 /*
-    Sortiranje float niza i niza A* cvorova.
-    Provera da originalna heap struktura ostaje nepromenjena.
+Sortiranje float niza i niza A* cvorova.
+Provera da originalna heap struktura ostaje nepromenjena.
 */
 void test_9(void)
 {
@@ -451,7 +451,7 @@ void test_9(void)
 
 
 /*
-    Stress test sa 200 nasumicnih elemenata.
+Stress test sa 200 nasumicnih elemenata.
 */
 void test_10(void)
 {
